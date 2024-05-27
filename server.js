@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const connectDB = require('./database');
-const SwitchEvent = require('./models/lightsModel');
+const SwitchEvent = require('./lightsModel');
 
 const app = express();
 

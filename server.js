@@ -1,46 +1,41 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 const connectDB = require('./database');
-const SwitchEvent = require('./lightsModel');
+const SwitchEvent = require('./model/lightsModel'); // Ensure correct path to lightsModel.js
 
 const app = express();
+const port = 3000;
 
 connectDB();
 
-app.use(bodyParser.json());
-
-mongoose.connect('mongodb://localhost:27017/switchEvents', {
+mongoose.connect('mongodb://127.0.0.1/switchEvents', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
+}).then(() => {
+  console.log('Connected to MongoDB');
+}).catch(err => {
+  console.error('Error connecting to MongoDB', err);
 });
 
-app.post('/api/switch-events', async (req, res) => {
+app.use(bodyParser.json());
+
+app.post('/api/switchEvents', async (req, res) => {
   try {
-    const { switch: switchName, state, timestamp } = req.body;
     const switchEvent = new SwitchEvent({
-      switch: switchName,
-      state,
-      timestamp: new Date(parseInt(timestamp)),
+      switch: req.body.switch,
+      state: req.body.state,
+      timestamp: new Date()
     });
 
-    await switchEvent.save();
-    res.status(201).send('Event saved');
-  } catch (err) {
-    res.status(500).send('Server Error');
+    const result = await switchEvent.save();
+    res.status(200).send(`Event inserted with ID: ${result._id}`);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Error inserting event');
   }
 });
 
-app.get('/api/switch-events', async (req, res) => {
-  try {
-    const events = await SwitchEvent.find().sort({ timestamp: -1 });
-    res.json(events);
-  } catch (err) {
-    res.status(500).send('Server Error');
-  }
-});
-
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}/`);
 });

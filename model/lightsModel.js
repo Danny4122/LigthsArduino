@@ -1,11 +1,13 @@
 const mongoose = require('mongoose');
 
+// Define the schema for a switch event
 const SwitchEventSchema = new mongoose.Schema({
-  switch: String,
-  state: String,
-  timestamp: Date,
+  switch: { type: String, required: true },
+  state: { type: String, required: true },
+  timestamp: { type: Date, default: Date.now }
 });
 
-const LightsModel = mongoose.model('SwitchEvent', SwitchEventSchema);
+// Create the model
+const SwitchEvent = mongoose.model('SwitchEvent', SwitchEventSchema);
 
-module.exports = LightsModel;
+module.exports = SwitchEvent;

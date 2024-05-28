@@ -8,6 +8,6 @@ const SwitchEventSchema = new mongoose.Schema({
 });
 
 // Create the model
-const SwitchEvent = mongoose.model('SwitchEvent', SwitchEventSchema);
+const SwitchEventModel = mongoose.model('SwitchEvent', SwitchEventSchema, "switchevents");
 
-module.exports = SwitchEvent;
+module.exports = SwitchEventModel;

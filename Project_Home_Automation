@@ -42,7 +42,7 @@ void sendSwitchState() {
   WiFiClient client;
   HTTPClient http;
 
-  String url = "http://192.168.1.24:3000/api/switchevents"; // Ensure this is the correct IP and port
+  String url = "http://192.168.1.24:3000/api/switchEvents"; // Ensure this is the correct IP and port
   
   http.begin(client, url);
   http.addHeader("Content-Type", "application/json");

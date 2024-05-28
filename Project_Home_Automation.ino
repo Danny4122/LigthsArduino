@@ -9,11 +9,11 @@ void setup() {
   pinMode(D0, OUTPUT);
   pinMode(D1, OUTPUT);
   Serial.begin(9600);
-  delay(500);
+  delay(5000);
 
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
+    delay(5000);
     Serial.println("Connecting to WiFi...");
   }
   Serial.println("Connected to WiFi");
@@ -42,13 +42,20 @@ void sendSwitchState() {
   WiFiClient client;
   HTTPClient http;
 
-  String url = "http://192.168.1.24:3000/api/switchEvents"; // Ensure this is the correct IP and port
-  
+  String url = "http://192.168.1.24:3000/api/switchevents"; // Ensure this is the correct IP and port
+  Serial.println("Connecting to URL: " + url);
+
   http.begin(client, url);
   http.addHeader("Content-Type", "application/json");
 
-  // Properly format JSON data
-  String json = "{\"switch1\": " + String(switch1) + ", \"switch2\": " + String(switch2) + "}";
+  // Get the current timestamp
+  String timestamp = getTimestamp();
+
+  // Properly format JSON data including switch1, switch2, state, and timestamp
+  String json = "{\"switch\": \"" + String(switch1 ? "switch1" : "switch2") + "\", \"state\": \"" + String(switch1 ? (switch1 ? "on" : "off") : (switch2 ? "on" : "off")) + "\", \"timestamp\": \"" + timestamp + "\"}";
+
+  Serial.println("JSON data: " + json);
+  
   int httpResponseCode = http.POST(json);
 
   if (httpResponseCode > 0) {
@@ -63,6 +70,28 @@ void sendSwitchState() {
 
   http.end();
 }
+
+String getTimestamp() {
+  // Get the current timestamp in milliseconds
+  unsigned long currentMillis = millis(); // Assuming millis() provides the current time in milliseconds since the device started
+  
+  // Calculate the components of the timestamp
+  unsigned long seconds = currentMillis / 1000;
+  unsigned long minutes = seconds / 60;
+  unsigned long hours = minutes / 60;
+  unsigned long days = hours / 24;
+  
+  // Format the timestamp in the desired format ("YYYY-MM-DDTHH:MM:SSZ")
+  String timestamp = "";
+  char formattedTime[20];
+  snprintf(formattedTime, 20, "%04lu-%02lu-%02luT%02lu:%02lu:%02luZ",
+           1970 + days / 365, 1 + (days % 365) / 30, 1 + (days % 365) % 30,
+           hours % 24, minutes % 60, seconds % 60);
+  timestamp = String(formattedTime);
+  
+  return timestamp;
+}
+
 
 void onSwitch1Change() {
   if (switch1) {
